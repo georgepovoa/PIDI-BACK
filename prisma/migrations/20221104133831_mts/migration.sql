@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Aula" ALTER COLUMN "dataAula" DROP NOT NULL,
+ALTER COLUMN "horarioAula" DROP NOT NULL;

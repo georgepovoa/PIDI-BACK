@@ -1,0 +1,170 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Usuario {
+  idUsuario      String    @id @default(uuid())
+  senha          String    @db.VarChar(60)
+  dataCadatrada  DateTime  @default(now())
+  dataNascimento DateTime?
+  endereco       String?   @db.VarChar(100)
+  email          String    @db.VarChar(50)
+  nome           String    @db.VarChar(50)
+  cpf            String?   @db.VarChar(50)
+  rg             String?   @db.VarChar(50)
+  instagram      String?   @db.VarChar(50)
+
+  Administrador Administrador[]
+  Personal      Personal[]
+  Aluno         Aluno[]
+}
+
+model Administrador {
+  idadm      String  @id @default(uuid())
+  fk_id_user String
+  user       Usuario @relation(fields: [fk_id_user], references: [idUsuario], onDelete: Cascade)
+}
+
+model Personal {
+  idPersonal String @id @default(uuid())
+  fk_id_user String
+
+  avaliacoes             String[]
+  rating                 Float    @db.Real
+  documentacao           String   @db.VarChar(50)
+  preferenciasExplicitas String[]
+  documentacaoValida     Boolean  @default(false)
+  usuariospassados       String[]
+  denunciasRecebidas     String[]
+  mediaUrl               String   @default("")
+  locaisDeAtendimento    String[]
+  profilePic             String   @default("")
+
+  user      Usuario          @relation(fields: [fk_id_user], references: [idUsuario], onDelete: Cascade)
+  Denuncia  Denuncia[]
+  Mensagens Mensagens[]
+  Contrato  Contrato[]
+  Planos    PersonalPlanos[]
+  Propostas Proposta[]
+  aulas     Aula[]
+
+  @@unique(fk_id_user)
+}
+
+model PersonalPlanos {
+  idPersonalPlanos String @id @default(uuid())
+  fk_id_personal   String
+
+  diasPorSemana String @db.VarChar(40)
+  valorDoPlano  String
+
+  Propostas Proposta[]
+  personal  Personal   @relation(fields: [fk_id_personal], references: [idPersonal], onDelete: Cascade)
+  contratos Contrato[]
+}
+
+model Aluno {
+  idAluno    String @id @default(uuid())
+  fk_id_user String
+
+  avaliacoes             String[]
+  rating                 Float    @db.Real
+  documentacao           String   @db.VarChar(40)
+  preferenciasExplicitas String[]
+  documentacaoValida     Boolean  @default(false)
+  personaisPassados      String[]
+  denunciasRecebidas     String[]
+  profilePic             String   @default("")
+  localizacao            String   @default("")
+
+  Propostas Proposta[]
+  user      Usuario?    @relation(fields: [fk_id_user], references: [idUsuario], onDelete: Cascade)
+  Denuncia  Denuncia[]
+  Mensagens Mensagens[]
+  Contrato  Contrato[]
+  aulas     Aula[]
+
+  @@unique(fk_id_user)
+}
+
+model Denuncia {
+  idDenuncia String @id @default(uuid())
+
+  fk_id_aluno    String
+  fk_id_personal String
+
+  idContrato   String?
+  gravidade    String   @db.VarChar(40)
+  dataDenuncia DateTime @default(now())
+  texto        String?  @default("")
+  status       String   @default("aberto")
+
+  aluno    Aluno    @relation(fields: [fk_id_aluno], references: [idAluno])
+  personal Personal @relation(fields: [fk_id_personal], references: [idPersonal])
+}
+
+model Mensagens {
+  idMensagem String @id @default(uuid())
+
+  hora  DateTime @default(now())
+  texto String   @db.VarChar(40)
+
+  fk_id_aluno    String
+  fk_id_personal String
+
+  aluno        Aluno    @relation(fields: [fk_id_aluno], references: [idAluno])
+  destinatario Personal @relation(fields: [fk_id_personal], references: [idPersonal])
+}
+
+model Contrato {
+  idContrato       String  @id @default(uuid())
+  fk_id_aluno      String
+  fk_id_personal   String
+  fk_id_plano      String
+  valorMensal      Float   @db.Real
+  valorTotal       Float   @db.Real
+  aulasContratadas Int
+  situacaoContrato Boolean @default(false)
+
+  aluno    Aluno          @relation(fields: [fk_id_aluno], references: [idAluno])
+  personal Personal       @relation(fields: [fk_id_personal], references: [idPersonal])
+  aulas    Aula[]
+  plano    PersonalPlanos @relation(fields: [fk_id_plano], references: [idPersonalPlanos])
+}
+
+model Proposta {
+  idProposta       String  @id @default(uuid())
+  fk_id_aluno      String
+  fk_id_personal   String
+  fk_id_plano      String
+  fk_user_personal String
+  fk_user_aluno    String
+
+  valorTotal       Float   @db.Real
+  mesesContratados Int
+  observacoes      String
+  situacaoProposta Boolean @default(false)
+
+  aluno    Aluno          @relation(fields: [fk_id_aluno], references: [idAluno])
+  personal Personal       @relation(fields: [fk_id_personal], references: [idPersonal])
+  plano    PersonalPlanos @relation(fields: [fk_id_plano], references: [idPersonalPlanos])
+}
+
+model Aula {
+  id_aula        String   @id @default(uuid())
+  fk_id_aluno    String
+  fk_id_personal String
+  id_Contrato    String
+  dataAula       DateTime? @db.Date
+  horarioAula    DateTime? @db.Date
+  fechada        Boolean  @default(false)
+
+  contrato Contrato @relation(fields: [id_Contrato], references: [idContrato])
+  aluno    Aluno    @relation(fields: [fk_id_aluno], references: [idAluno])
+  personal Personal @relation(fields: [fk_id_personal], references: [idPersonal])
+}
