@@ -27,6 +27,7 @@ import aulaRouter from './aula/aula-router'
 import cors from 'cors'
 
 import jwt from "jsonwebtoken"
+import alunoRoutes from './aluno/aluno-router'
 
 
 
@@ -48,6 +49,7 @@ app.use(planosRoutes)
 app.use(propostaRoutes)
 app.use(contratoRouter)
 app.use(aulaRouter)
+app.use(alunoRoutes)
 
 app.get('/', async (req, res) => {
 
@@ -62,58 +64,6 @@ app.get('/administrador', async (req, res) => {
 
   res.json(administrador)
 })
-
-
-app.get('/aluno', async (req, res) => {
-  const aluno = await prisma.aluno.findMany()
-  console.log(aluno)
-
-  res.json(aluno)
-})
-
-app.get('/aluno/:id', async (req, res) => {
-
-  const {id} = req.params
-  
-  const aluno = await prisma.aluno.findUnique({
-    where:{
-      fk_id_user:id
-    }
-  })
-  console.log(aluno)
-
-  res.json(aluno)
-})
-
-
-app.post('/aluno', async (req, res) => {
-  const aluno: InitAlunoInterface = req.body
-  console.log(aluno)
-
-  try {
-    const alunocreate = await prisma.aluno.create({
-      data: {
-
-        fk_id_user: aluno.fk_id_user,
-        rating: aluno.rating,
-        documentacao: aluno.documentacao,
-        preferenciasExplicitas: aluno.preferenciasExplicitas
-
-
-      }
-    })
-    console.log(alunocreate)
-
-    res.json(alunocreate)
-  } catch (error) {
-    console.log(error)
-    res.json({ error })
-
-  }
-
-
-})
-
 
 app.get('/denuncia', async (req, res) => {
   const denuncia = await prisma.denuncia.findMany()
@@ -237,7 +187,7 @@ app.post("/auth/login", async (req, res) => {
     }
     )
     console.log(usuario)
-    if (usuario?.senha == login.senha) {
+    if (usuario?.senha === login.senha) {
       try {
         const token = jwt.sign(
           {
@@ -262,7 +212,7 @@ app.post("/auth/login", async (req, res) => {
       res.json({ "Login": "ok" })
     }
     else {
-      if (usuario == null) {
+      if (usuario === null) {
         res.json({
           "Usuario": "Não existe",
           "status": "Falha"

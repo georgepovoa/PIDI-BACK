@@ -42,14 +42,48 @@ class ContratosController {
 
     async getAllContratosByPersonal(request: Request, response: Response) {
         const { id } = request.params
+        var lista_para_response = []
 
         try {
             const contratos = await prisma.contrato.findMany({
                 where: {
                     fk_id_personal: id
+                },
+                include: {
+                    personal: true,
+                    aluno: true,
+                    plano: true
                 }
             })
-            response.json(contratos)
+            for (var i = 0; i < contratos.length; i++) {
+
+                var nomeDoPersonal = await prisma.usuario.findFirst({
+                    where: {
+                        idUsuario: contratos[i].personal.fk_id_user
+                    }
+                })
+
+                var nomeDoAluno = await prisma.usuario.findFirst({
+                    where: {
+                        idUsuario: contratos[i].aluno.fk_id_user
+                    }
+                })
+
+                var novacontratos: any = contratos[i]
+
+                novacontratos.nomePersonal = nomeDoPersonal?.nome
+
+
+
+                novacontratos.nomeDoAluno = nomeDoAluno?.nome
+
+
+                lista_para_response.push(novacontratos)
+
+
+
+            }
+            response.json(lista_para_response)
         } catch (error) {
             response.json(error)
 
@@ -59,13 +93,46 @@ class ContratosController {
 
     async getAllContratosByAluno(request: Request, response: Response) {
         const { id } = request.params
-
+        var lista_para_response = []
         try {
             const contratos = await prisma.contrato.findMany({
                 where: {
                     fk_id_aluno: id
+                },
+                include: {
+                    personal: true,
+                    aluno: true,
+                    plano: true
                 }
             })
+            for (var i = 0; i < contratos.length; i++) {
+
+                var nomeDoPersonal = await prisma.usuario.findFirst({
+                    where: {
+                        idUsuario: contratos[i].personal.fk_id_user
+                    }
+                })
+
+                var nomeDoAluno = await prisma.usuario.findFirst({
+                    where: {
+                        idUsuario: contratos[i].aluno.fk_id_user
+                    }
+                })
+
+                var novacontratos: any = contratos[i]
+
+                novacontratos.nomePersonal = nomeDoPersonal?.nome
+
+
+
+                novacontratos.nomeDoAluno = nomeDoAluno?.nome
+
+
+                lista_para_response.push(novacontratos)
+
+
+
+            }
             response.json(contratos)
         } catch (error) {
             response.json(error)
@@ -155,6 +222,85 @@ class ContratosController {
             response.json(error)
         }
 
+    }
+
+
+    async deleteContrato(request: Request, response: Response) {
+        const { id } = request.params
+
+
+        try {
+            const contrato = await prisma.contrato.delete({
+                where: {
+                    idContrato: id
+                }
+            })
+            return response.json(contrato)
+        } catch (error) {
+            console.log(error)
+            return response.json(error)
+        }
+
+    }
+
+    async getContratoAulasPersonal(request:Request,response:Response){
+        const {id} = request.params
+
+        try {
+            const contrato = await prisma.contrato.findMany({
+                where:{
+                    fk_id_personal:id
+                },
+                include:{
+                    aulas:true,
+                    personal:true,
+                    aluno:true,
+                    
+                }
+
+            })
+            response.json(contrato)
+        } catch (error) {
+            response.json(error)
+            
+        }
+    }
+
+    async getContratoAulasAluno(request:Request,response:Response){
+        const {id} = request.params
+
+        try {
+            const contrato = await prisma.contrato.findMany({
+                where:{
+                    fk_id_aluno:id
+                },
+                include:{
+                    aulas:true,
+                    personal:true,
+                    aluno:true,
+                    
+                }
+
+            })
+            response.json(contrato)
+        } catch (error) {
+            response.json(error)
+            
+        }
+    }
+
+    async updateManyAulas(request:Request,response:Response){
+        const {id} = request.params
+
+        const listaDeAulas :any = request.body
+
+        for (var i = 0; i<listaDeAulas.length;i++){
+            if(listaDeAulas[i].horarioAula != null && listaDeAulas[i].horarioAula != "" && listaDeAulas[i].dataAula != null && listaDeAulas[i].horarioAula != "" ){
+                aulaController.updateDataAula(listaDeAulas[i])
+            }
+            
+
+        }
     }
     
 }

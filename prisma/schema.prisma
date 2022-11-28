@@ -44,6 +44,7 @@ model Personal {
   mediaUrl               String   @default("")
   locaisDeAtendimento    String[]
   profilePic             String   @default("")
+  nomeMostrado           String   @default("")
 
   user      Usuario          @relation(fields: [fk_id_user], references: [idUsuario], onDelete: Cascade)
   Denuncia  Denuncia[]
@@ -81,6 +82,7 @@ model Aluno {
   denunciasRecebidas     String[]
   profilePic             String   @default("")
   localizacao            String   @default("")
+  nomeMostrado           String   @default("")
 
   Propostas Proposta[]
   user      Usuario?    @relation(fields: [fk_id_user], references: [idUsuario], onDelete: Cascade)
@@ -129,6 +131,8 @@ model Contrato {
   valorMensal      Float   @db.Real
   valorTotal       Float   @db.Real
   aulasContratadas Int
+  aceitoPersonal   Boolean @default(false)
+  aceitoAluno      Boolean @default(false)
   situacaoContrato Boolean @default(false)
 
   aluno    Aluno          @relation(fields: [fk_id_aluno], references: [idAluno])
@@ -142,9 +146,6 @@ model Proposta {
   fk_id_aluno      String
   fk_id_personal   String
   fk_id_plano      String
-  fk_user_personal String
-  fk_user_aluno    String
-
   valorTotal       Float   @db.Real
   mesesContratados Int
   observacoes      String
@@ -156,13 +157,13 @@ model Proposta {
 }
 
 model Aula {
-  id_aula        String   @id @default(uuid())
+  id_aula        String    @id @default(uuid())
   fk_id_aluno    String
   fk_id_personal String
   id_Contrato    String
   dataAula       DateTime? @db.Date
-  horarioAula    DateTime? @db.Date
-  fechada        Boolean  @default(false)
+  horarioAula    DateTime? @db.Time
+  fechada        Boolean   @default(false)
 
   contrato Contrato @relation(fields: [id_Contrato], references: [idContrato])
   aluno    Aluno    @relation(fields: [fk_id_aluno], references: [idAluno])

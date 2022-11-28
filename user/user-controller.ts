@@ -22,6 +22,20 @@ class UserController {
 
     }
 
+    async getUser(request: Request, response: Response) {
+        const {id} = request.params
+
+        const users = await prisma.usuario.findFirst({
+            where:{
+                idUsuario:id
+            }
+        })
+
+        response.status(200).json(users)
+
+
+    }
+
     async createNewUser(request: Request, response: Response) {
         const user: UserInterface = request.body
 

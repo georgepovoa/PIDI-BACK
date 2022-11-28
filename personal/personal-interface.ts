@@ -4,4 +4,5 @@ export interface PersonalInterface{
     documentacao : string
     preferenciasExplicitas :string[]
     mediaUrl : string
+    nomeMostrado: string
   }

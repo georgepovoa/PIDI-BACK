@@ -12,7 +12,6 @@ aulaRouter.get("/aula/all",aulaController.getAllAulas)
 aulaRouter.get("/aula/aluno/:id",aulaController.getAllAulasByAluno)
 aulaRouter.get("/aula/personal/:id",aulaController.getAllAulasByPersonal)
 aulaRouter.get("/aula/:id",aulaController.getAulaById)
-aulaRouter.put("/aula/:id",aulaController.updateAula)
 
 export default aulaRouter
 

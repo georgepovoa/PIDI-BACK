@@ -2,6 +2,7 @@ import { Request, response, Response } from "express";
 import { PrismaClient } from '@prisma/client';
 import { AulaInterface } from "./aula-interface";
 
+
 const prisma = new PrismaClient()
 
 
@@ -19,6 +20,11 @@ class AulaController {
             const aula = await prisma.aula.findFirst({
                 where: {
                     id_aula: id
+                },
+                include:{
+                    aluno:true,
+                    personal:true,
+                    contrato:true
                 }
             })
             response.json(aula)
@@ -46,6 +52,11 @@ class AulaController {
             const contratos = await prisma.aula.findMany({
                 where: {
                     fk_id_personal: id
+                },
+                include:{
+                    aluno:true,
+                    personal:true,
+                    contrato:true
                 }
             })
             response.json(contratos)
@@ -63,6 +74,11 @@ class AulaController {
             const contratos = await prisma.aula.findMany({
                 where: {
                     fk_id_aluno: id
+                },
+                include:{
+                    aluno:true,
+                    personal:true,
+                    contrato:true
                 }
             })
             response.json(contratos)
@@ -73,12 +89,32 @@ class AulaController {
 
     }
 
-    async updateAula(request: Request, response: Response) {
-        const { id } = request.params
-        const aula: AulaInterface = request.body
+    async updateDataAula(aula:any) {
+        console.log(aula)
+        // YYYY-MM-DD
+        // 2022-11-10T22:34:05.637Z
 
-        response.json({"EOQ":"FON TRAB"})
+        aula.dataAula = new Date(aula.dataAula)
+        
+        let date = new Date()
+        var userTimezoneOffset = date.getTimezoneOffset();
+        date.setHours(parseInt(aula.horarioAula.split(":")[0]) - userTimezoneOffset)
+        date.setMinutes(parseInt(aula.horarioAula.split(":")[1]) - userTimezoneOffset)
+        aula.horarioAula = new Date(date.getTime() - userTimezoneOffset);
+        
+        
 
+
+
+
+        const updateAula = await prisma.aula.update({
+            where:{
+                id_aula:aula.id_aula
+            },
+            data:aula
+        })
+        console.log(updateAula)
+        return updateAula
        
     }
 

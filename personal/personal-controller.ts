@@ -55,7 +55,8 @@ class PersonalController {
                     rating: personal.rating,
                     documentacao: personal.documentacao,
                     mediaUrl: personal.mediaUrl,
-                    preferenciasExplicitas: personal.preferenciasExplicitas
+                    preferenciasExplicitas: personal.preferenciasExplicitas,
+                    nomeMostrado : personal.nomeMostrado
 
 
                 },

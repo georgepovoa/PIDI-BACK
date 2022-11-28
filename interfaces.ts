@@ -33,6 +33,7 @@ export interface InitAlunoInterface{
   fk_id_user:string
   rating :number
   documentacao:string
+  nomeMostrado:string
   preferenciasExplicitas:string[]
 
 }
